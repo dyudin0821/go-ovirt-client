@@ -56,7 +56,7 @@ func (o *oVirtClient) AddTagToVMByName(id VMID, tagName string, retries ...Retry
 	return
 }
 
-func (m *mockClient) AddTagToVMByName(id VMID, tagName string, retries ...RetryStrategy) (err error) {
+func (m *mockClient) AddTagToVMByName(id VMID, tagName string, _ ...RetryStrategy) (err error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 

@@ -9,7 +9,7 @@ import (
 
 // The following example demonstrates how to create a virtual machine. It is set up
 // using the test helper, but can be easily modified to use the client directly.
-func ExampleVMClient_create() {
+func ExampleVMClient_create() { //nolint:testableexamples
 	// Create the helper for testing. Alternatively, you could create a production client with ovirtclient.New()
 	helper, err := ovirtclient.NewLiveTestHelperFromEnv(ovirtclientlog.NewNOOPLogger())
 	if err != nil {

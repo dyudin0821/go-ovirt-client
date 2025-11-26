@@ -218,7 +218,7 @@ func getProxyFunc(extraSettings ExtraSettings) (func(req *http.Request) (*url.UR
 		if err != nil {
 			return nil, wrap(err, EBadArgument, "failed to parse proxy URL: %s", *proxy)
 		}
-		proxyFunc = func(req *http.Request) (*url.URL, error) {
+		proxyFunc = func(_ *http.Request) (*url.URL, error) {
 			return u, nil
 		}
 	} else {

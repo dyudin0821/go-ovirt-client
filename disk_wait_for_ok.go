@@ -44,7 +44,7 @@ func (o *oVirtClient) checkDiskOK(diskID DiskID) (Disk, error) {
 // WaitForDiskOK waits for a disk to be in the OK status, then additionally queries the job that was in progress with
 // the correlation ID. This is necessary because the disk returns OK status before the job has actually finished,
 // resulting in a "disk locked" error on subsequent operations. It uses checkDiskOk as an underlying function.
-func (m *mockClient) WaitForDiskOK(diskID DiskID, retries ...RetryStrategy) (Disk, error) {
+func (m *mockClient) WaitForDiskOK(diskID DiskID, _ ...RetryStrategy) (Disk, error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	disk, ok := m.disks[diskID]

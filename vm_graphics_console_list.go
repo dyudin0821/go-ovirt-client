@@ -30,7 +30,7 @@ func (o *oVirtClient) ListVMGraphicsConsoles(vmID VMID, retries ...RetryStrategy
 	return result, err
 }
 
-func (m *mockClient) ListVMGraphicsConsoles(vmID VMID, retries ...RetryStrategy) ([]VMGraphicsConsole, error) {
+func (m *mockClient) ListVMGraphicsConsoles(vmID VMID, _ ...RetryStrategy) ([]VMGraphicsConsole, error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	graphicsConsoles, ok := m.graphicsConsolesByVM[vmID]

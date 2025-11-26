@@ -1,3 +1,4 @@
+// Package main provides a tool to download test images from GitHub repositories.
 package main
 
 import (
@@ -24,7 +25,7 @@ const defaultTestImageSource = "https://github.com/oVirt/ovirt-tinycore-linux"
 var gitHubCerts []byte
 var imageSourceGitHubPattern = regexp.MustCompile(`^https://github.com/([^/]+)/([^/]+)/?$`)
 var testImageDownloadHTTPClient = &http.Client{
-	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+	CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
 		return nil
 	},
 	Transport: &http.Transport{

@@ -195,7 +195,7 @@ func TestCredentialChangeAfterSetup(t *testing.T) {
 		ovirtclient.TLS().CACertsFromMemory(realCABytes),
 		logger,
 		nil,
-		func(connection ovirtclient.Client) error {
+		func(_ ovirtclient.Client) error {
 			// Disable connection check on setup to simulate a credential shift after the connection
 			// has been established.
 			return nil

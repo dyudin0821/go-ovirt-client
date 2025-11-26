@@ -243,14 +243,21 @@ type VMData interface {
 // VMOS is the structure describing the virtual machine operating system, if set.
 type VMOS interface {
 	Type() string
+	// BootDevices returns the boot sequence for the VM.
+	BootDevices() []BootDevice
 }
 
 type vmOS struct {
-	t string
+	t           string
+	bootDevices []BootDevice
 }
 
 func (v vmOS) Type() string {
 	return v.t
+}
+
+func (v vmOS) BootDevices() []BootDevice {
+	return v.bootDevices
 }
 
 // VMPlacementPolicy is the structure that holds the rules for VM migration to other hosts.
@@ -291,6 +298,41 @@ func VMAffinityValues() []VMAffinity {
 		VMAffinityMigratable,
 		VMAffinityPinned,
 		VMAffinityUserMigratable,
+	}
+}
+
+// BootDevice represents a boot device for a virtual machine.
+type BootDevice string
+
+const (
+	// BootDeviceHD represents a hard disk boot device.
+	BootDeviceHD BootDevice = "hd"
+	// BootDeviceNetwork represents a network (PXE) boot device.
+	BootDeviceNetwork BootDevice = "network"
+	// BootDeviceCDROM represents a CD-ROM boot device.
+	BootDeviceCDROM BootDevice = "cdrom"
+)
+
+// Validate checks if the boot device has a valid value.
+func (b BootDevice) Validate() error {
+	switch b {
+	case BootDeviceHD:
+		return nil
+	case BootDeviceNetwork:
+		return nil
+	case BootDeviceCDROM:
+		return nil
+	default:
+		return newError(EBadArgument, "invalid boot device: %s", b)
+	}
+}
+
+// BootDeviceValues returns all valid boot device values.
+func BootDeviceValues() []BootDevice {
+	return []BootDevice{
+		BootDeviceHD,
+		BootDeviceNetwork,
+		BootDeviceCDROM,
 	}
 }
 
@@ -430,27 +472,32 @@ func (i *initialization) WithNicConfiguration(nic NicConfiguration) BuildableIni
 	return i
 }
 
-type IpVersion string
+// IPVersion represents the IP protocol version (v4 or v6).
+type IPVersion string
 
 const (
-	IPVERSION_V4 IpVersion = "v4"
-	IPVERSION_V6 IpVersion = "v6"
+	// IPVersionV4 represents IPv4 protocol version.
+	IPVersionV4 IPVersion = "v4"
+	// IPVersionV6 represents IPv6 protocol version.
+	IPVersionV6 IPVersion = "v6"
 )
 
-// Ip Represents the IP configuration of a network interface.
+// IP represents the IP configuration of a network interface.
 type IP struct {
 	Address string
 	Gateway string
 	Netmask string
-	Version IpVersion
+	Version IPVersion
 }
 
+// IsIPv4 returns true if the IP is an IPv4 address.
 func (ip IP) IsIPv4() bool {
-	return ip.Version == IPVERSION_V4
+	return ip.Version == IPVersionV4
 }
 
+// IsIPv6 returns true if the IP is an IPv6 address.
 func (ip IP) IsIPv6() bool {
-	return ip.Version == IPVERSION_V6
+	return ip.Version == IPVersionV6
 }
 
 // NicConfiguration defines a virtual machine’s initialization nic configuration.
@@ -542,7 +589,7 @@ func convertSDKNicConfiguration(sdkObject *ovirtsdk.NicConfiguration) NicConfigu
 			Address: ipv4.MustAddress(),
 			Gateway: ipv4.MustGateway(),
 			Netmask: ipv4.MustNetmask(),
-			Version: IPVERSION_V4,
+			Version: IPVersionV4,
 		},
 	)
 
@@ -558,7 +605,7 @@ func convertSDKNicConfiguration(sdkObject *ovirtsdk.NicConfiguration) NicConfigu
 				Address: address,
 				Gateway: gateway,
 				Netmask: netmask,
-				Version: IPVERSION_V6,
+				Version: IPVersionV6,
 			},
 		)
 	}
@@ -1082,6 +1129,8 @@ func (v *vmCPUTopoParams) MustWithThreads(threads uint) BuildableVMCPUTopoParams
 type VMOSParameters interface {
 	// Type returns the type-string for the operating system.
 	Type() *string
+	// BootDevices returns the boot sequence for the VM.
+	BootDevices() []BootDevice
 }
 
 // BuildableVMOSParameters is a buildable version of VMOSParameters.
@@ -1090,6 +1139,12 @@ type BuildableVMOSParameters interface {
 
 	WithType(t string) (BuildableVMOSParameters, error)
 	MustWithType(t string) BuildableVMOSParameters
+	// WithBootDevices sets the boot sequence for the VM.
+	WithBootDevices(devices []BootDevice) (BuildableVMOSParameters, error)
+	MustWithBootDevices(devices []BootDevice) BuildableVMOSParameters
+	// WithBootDevice adds a single boot device to the boot sequence.
+	WithBootDevice(device BootDevice) (BuildableVMOSParameters, error)
+	MustWithBootDevice(device BootDevice) BuildableVMOSParameters
 }
 
 // NewVMOSParameters creates a new VMOSParameters structure.
@@ -1098,11 +1153,16 @@ func NewVMOSParameters() BuildableVMOSParameters {
 }
 
 type vmOSParameters struct {
-	t *string
+	t           *string
+	bootDevices []BootDevice
 }
 
 func (v *vmOSParameters) Type() *string {
 	return v.t
+}
+
+func (v *vmOSParameters) BootDevices() []BootDevice {
+	return v.bootDevices
 }
 
 func (v *vmOSParameters) WithType(t string) (BuildableVMOSParameters, error) {
@@ -1112,6 +1172,40 @@ func (v *vmOSParameters) WithType(t string) (BuildableVMOSParameters, error) {
 
 func (v *vmOSParameters) MustWithType(t string) BuildableVMOSParameters {
 	builder, err := v.WithType(t)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (v *vmOSParameters) WithBootDevices(devices []BootDevice) (BuildableVMOSParameters, error) {
+	for _, device := range devices {
+		if err := device.Validate(); err != nil {
+			return nil, err
+		}
+	}
+	v.bootDevices = devices
+	return v, nil
+}
+
+func (v *vmOSParameters) MustWithBootDevices(devices []BootDevice) BuildableVMOSParameters {
+	builder, err := v.WithBootDevices(devices)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (v *vmOSParameters) WithBootDevice(device BootDevice) (BuildableVMOSParameters, error) {
+	if err := device.Validate(); err != nil {
+		return nil, err
+	}
+	v.bootDevices = append(v.bootDevices, device)
+	return v, nil
+}
+
+func (v *vmOSParameters) MustWithBootDevice(device BootDevice) BuildableVMOSParameters {
+	builder, err := v.WithBootDevice(device)
 	if err != nil {
 		panic(err)
 	}
@@ -2392,10 +2486,21 @@ func vmOSConverter(object *ovirtsdk.Vm, v *vm) error {
 	}
 	v.os = &vmOS{}
 	osType, ok := sdkOS.Type()
-	if !ok {
-		return newFieldNotFound("os on vm", "type")
+	if ok {
+		v.os.t = osType
 	}
-	v.os.t = osType
+
+	// Read boot devices if present
+	if boot, ok := sdkOS.Boot(); ok {
+		if devices, ok := boot.Devices(); ok {
+			bootDevices := make([]BootDevice, len(devices))
+			for i, device := range devices {
+				bootDevices[i] = BootDevice(device)
+			}
+			v.os.bootDevices = bootDevices
+		}
+	}
+
 	return nil
 }
 
@@ -2621,9 +2726,9 @@ func convertSDKVMCPU(sdkObject *ovirtsdk.Vm) (*vmCPU, error) {
 	}
 	cpu := &vmCPU{
 		topo: &vmCPUTopo{
-			uint(cores),
-			uint(threads),
-			uint(sockets),
+			uint(cores),   //nolint:gosec
+			uint(threads), //nolint:gosec
+			uint(sockets), //nolint:gosec
 		},
 		mode: cpuMode,
 	}
@@ -2713,10 +2818,7 @@ type VMStatusList []VMStatus
 // Copy creates a separate copy of the current status list.
 func (l VMStatusList) Copy() VMStatusList {
 	result := make([]VMStatus, len(l))
-	//nolint:gosimple
-	for i, s := range l {
-		result[i] = s
-	}
+	copy(result, l)
 	return result
 }
 

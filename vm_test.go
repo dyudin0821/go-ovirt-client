@@ -288,7 +288,7 @@ func TestVMCreationWithInit(t *testing.T) { //nolint:funlen
 			"script-test",
 			"test-vm",
 			ovirtclient.NewNicConfiguration("custom-nic", ovirtclient.IP{
-				Version: ovirtclient.IPVERSION_V4,
+				Version: ovirtclient.IPVersionV4,
 				Address: "192.168.178.15",
 				Gateway: "192.168.19.1",
 				Netmask: "255.255.255.0",
@@ -298,12 +298,12 @@ func TestVMCreationWithInit(t *testing.T) { //nolint:funlen
 			"script-test",
 			"test-vm",
 			ovirtclient.NewNicConfiguration("custom-nic", ovirtclient.IP{
-				Version: ovirtclient.IPVERSION_V4,
+				Version: ovirtclient.IPVersionV4,
 				Address: "192.168.178.15",
 				Gateway: "192.168.19.1",
 				Netmask: "255.255.255.0",
 			}).WithIPV6(ovirtclient.IP{
-				Version: ovirtclient.IPVERSION_V6,
+				Version: ovirtclient.IPVersionV6,
 				Address: "fe80::bfb6:1c6c:f541:1aa564",
 				Gateway: "fe80::",
 				Netmask: "64",
@@ -744,7 +744,7 @@ func checkVMDiskSparseness(t *testing.T, checkVM ovirtclient.VM, sparse bool, me
 		t.Fatalf("Failed to fetch disk for VM %s (%v).", checkVM.ID(), err)
 	}
 	if d.Sparse() != sparse {
-		t.Fatalf(message)
+		t.Fatal(message)
 	}
 }
 

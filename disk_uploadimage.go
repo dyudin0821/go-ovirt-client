@@ -233,7 +233,7 @@ func (u *uploadToDiskProgress) putRequest(transferURL string, transfer imageTran
 		return wrap(err, EUnidentified, "failed to create HTTP request")
 	}
 	putRequest.Header.Add("content-type", "application/octet-stream")
-	putRequest.ContentLength = int64(u.totalBytes)
+	putRequest.ContentLength = int64(u.totalBytes) //nolint:gosec
 	putRequest.Body = u
 	response, err := u.client.httpClient.Do(putRequest)
 	if err != nil {
@@ -290,7 +290,9 @@ func (u *uploadToDiskProgress) Read(p []byte) (n int, err error) {
 	default:
 	}
 	n, err = u.reader.Read(p)
-	u.transferredBytes += uint64(n)
+	if n > 0 {
+		u.transferredBytes += uint64(n)
+	}
 	return
 }
 
@@ -386,7 +388,7 @@ func (u *uploadToNewDiskProgress) Do() {
 
 	u.updateDisk(disk)
 
-	err = u.uploadToDiskProgress.transfer()
+	err = u.transfer()
 	u.lock.Lock()
 	u.err = err
 	u.lock.Unlock()

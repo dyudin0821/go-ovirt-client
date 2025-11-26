@@ -55,7 +55,7 @@ func (o *oVirtClient) UpdateNIC(
 	return result, err
 }
 
-func (m *mockClient) UpdateNIC(vmid VMID, nicID NICID, params UpdateNICParameters, retries ...RetryStrategy) (
+func (m *mockClient) UpdateNIC(vmid VMID, nicID NICID, params UpdateNICParameters, _ ...RetryStrategy) (
 	NIC,
 	error,
 ) {

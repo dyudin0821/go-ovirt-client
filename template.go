@@ -169,6 +169,9 @@ func convertSDKTemplateCPU(sdkObject *ovirtsdk.Template) (*vmCPU, error) {
 	if !ok {
 		return nil, newFieldNotFound("CPU topo in CPU in VM", "sockets")
 	}
+	if cores < 0 || threads < 0 || sockets < 0 {
+		return nil, newError(EBadArgument, "CPU topology values cannot be negative")
+	}
 	cpu := &vmCPU{
 		topo: &vmCPUTopo{
 			uint(cores),

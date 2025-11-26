@@ -12,7 +12,7 @@ import (
 
 // This example demonstrates the simplest way to upload an image without special timeout handling. The call still times
 // out after a built-in timeout.
-func ExampleDiskClient_uploadImage() {
+func ExampleDiskClient_uploadImage() { //nolint:testableexamples
 	// Open image file to upload
 	fh, err := os.Open("/path/to/test.img")
 	if err != nil {
@@ -43,7 +43,7 @@ func ExampleDiskClient_uploadImage() {
 	uploadResult, err := client.UploadToNewDisk(
 		helper.GetStorageDomainID(),
 		ovirtclient.ImageFormatRaw,
-		uint64(stat.Size()),
+		uint64(stat.Size()), //nolint:gosec
 		ovirtclient.CreateDiskParams().MustWithAlias(imageName).MustWithSparse(true),
 		fh,
 	)
@@ -54,7 +54,7 @@ func ExampleDiskClient_uploadImage() {
 }
 
 // This example demonstrates how to upload a VM image into a disk while being able to cancel the process manually.
-func ExampleDiskClient_uploadImageWithCancel() {
+func ExampleDiskClient_uploadImageWithCancel() { //nolint:testableexamples
 	// Open image file to upload
 	fh, err := os.Open("/path/to/test.img")
 	if err != nil {
@@ -88,7 +88,7 @@ func ExampleDiskClient_uploadImageWithCancel() {
 	uploadResult, err := client.StartUploadToNewDisk(
 		helper.GetStorageDomainID(),
 		ovirtclient.ImageFormatRaw,
-		uint64(stat.Size()),
+		uint64(stat.Size()), //nolint:gosec
 		ovirtclient.CreateDiskParams().MustWithSparse(true).MustWithAlias(imageName),
 		fh,
 		ovirtclient.ContextStrategy(ctx),

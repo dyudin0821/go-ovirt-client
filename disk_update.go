@@ -30,6 +30,9 @@ func (o *oVirtClient) StartUpdateDisk(id DiskID, params UpdateDiskParameters, re
 		sdkDisk.Alias(*alias)
 	}
 	if provisionedSize := params.ProvisionedSize(); provisionedSize != nil {
+		if *provisionedSize > 9223372036854775807 { // max int64
+			return nil, newError(EBadArgument, "provisioned size exceeds maximum allowed value")
+		}
 		sdkDisk.ProvisionedSize(int64(*provisionedSize))
 	}
 	correlationID := fmt.Sprintf("disk_update_%s", generateRandomID(5, o.nonSecureRandom))

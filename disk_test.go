@@ -32,7 +32,7 @@ func ExampleDiskClient_CreateDisk() {
 	disk, err := client.CreateDisk(
 		storageDomainID,
 		imageFormat,
-		uint64(diskSize),
+		uint64(diskSize), //nolint:gosec
 		ovirtclient.CreateDiskParams().MustWithAlias("test_disk"),
 	)
 	if err != nil {

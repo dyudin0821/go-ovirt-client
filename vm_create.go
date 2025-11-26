@@ -30,9 +30,9 @@ func vmBuilderCPU(params OptionalVMParameters, builder *ovirtsdk.VmBuilder) {
 		if cpuTopo := cpu.Topo(); cpuTopo != nil {
 			cpuBuilder.TopologyBuilder(ovirtsdk.
 				NewCpuTopologyBuilder().
-				Cores(int64(cpu.Topo().Cores())).
-				Threads(int64(cpu.Topo().Threads())).
-				Sockets(int64(cpu.Topo().Sockets())))
+				Cores(int64(cpu.Topo().Cores())).     //nolint:gosec
+				Threads(int64(cpu.Topo().Threads())). //nolint:gosec
+				Sockets(int64(cpu.Topo().Sockets()))) //nolint:gosec
 		}
 		if mode := cpu.Mode(); mode != nil {
 			cpuBuilder.Mode(ovirtsdk.CpuMode(*mode))
@@ -254,6 +254,15 @@ func vmOSCreator(params OptionalVMParameters, builder *ovirtsdk.VmBuilder) {
 		osBuilder := ovirtsdk.NewOperatingSystemBuilder()
 		if t := os.Type(); t != nil {
 			osBuilder.Type(*t)
+		}
+		// Add boot devices if specified
+		if bootDevices := os.BootDevices(); len(bootDevices) > 0 {
+			sdkBootDevices := make([]ovirtsdk.BootDevice, len(bootDevices))
+			for i, device := range bootDevices {
+				sdkBootDevices[i] = ovirtsdk.BootDevice(device)
+			}
+			bootBuilder := ovirtsdk.NewBootBuilder().DevicesOfAny(sdkBootDevices...)
+			osBuilder.BootBuilder(bootBuilder)
 		}
 		builder.OsBuilder(osBuilder)
 	}
@@ -504,11 +513,15 @@ func (m *mockClient) createVMMemoryPolicy(params OptionalVMParameters) *memoryPo
 
 func (m *mockClient) createVMOS(params OptionalVMParameters) *vmOS {
 	os := &vmOS{
-		t: "other",
+		t:           "other",
+		bootDevices: []BootDevice{},
 	}
 	if osParams, ok := params.OS(); ok {
 		if osType := osParams.Type(); osType != nil {
 			os.t = *osType
+		}
+		if bootDevices := osParams.BootDevices(); len(bootDevices) > 0 {
+			os.bootDevices = bootDevices
 		}
 	}
 	return os
