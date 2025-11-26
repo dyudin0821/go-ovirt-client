@@ -12,7 +12,7 @@ import (
 
 // This example demonstrates the simplest way to upload an image without special timeout handling. The call still times
 // out after a built-in timeout.
-func ExampleDiskClient_uploadImage() {
+func ExampleDiskClient_uploadImage() { //nolint:testableexamples
 	// Open image file to upload
 	fh, err := os.Open("/path/to/test.img")
 	if err != nil {
@@ -51,11 +51,10 @@ func ExampleDiskClient_uploadImage() {
 		panic(fmt.Errorf("failed to upload image (%w)", err))
 	}
 	fmt.Printf("Uploaded as disk %s\n", uploadResult.Disk().ID())
-	// Output:
 }
 
 // This example demonstrates how to upload a VM image into a disk while being able to cancel the process manually.
-func ExampleDiskClient_uploadImageWithCancel() {
+func ExampleDiskClient_uploadImageWithCancel() { //nolint:testableexamples
 	// Open image file to upload
 	fh, err := os.Open("/path/to/test.img")
 	if err != nil {
@@ -112,5 +111,4 @@ func ExampleDiskClient_uploadImageWithCancel() {
 		panic(fmt.Errorf("failed to upload image (%w)", err))
 	}
 	fmt.Printf("Uploaded as disk %s\n", uploadResult.Disk().ID())
-	// Output:
 }

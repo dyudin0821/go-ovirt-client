@@ -8,7 +8,7 @@ import (
 )
 
 // The following example demonstrates how to list virtual machines.
-func ExampleVMClient_list() {
+func ExampleVMClient_list() { //nolint:testableexamples
 	// Create the helper for testing. Alternatively, you could create a production client with ovirtclient.New()
 	helper, err := ovirtclient.NewLiveTestHelperFromEnv(ovirtclientlog.NewNOOPLogger())
 	if err != nil {
@@ -24,5 +24,4 @@ func ExampleVMClient_list() {
 	for _, vm := range vms {
 		fmt.Printf("Found VM %s\n", vm.ID())
 	}
-	// Output:
 }
