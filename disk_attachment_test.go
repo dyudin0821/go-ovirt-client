@@ -162,7 +162,7 @@ func assertDiskAttachmentCount(t *testing.T, vm ovirtclient.VM, count uint) {
 	if err != nil {
 		t.Fatalf("Failed to list disk attachments for VM %s (%v)", vm.ID(), err)
 	}
-	if len(attachments) != int(count) {
+	if uint(len(attachments)) != count {
 		t.Fatalf("Invalid number of attachments on VM %s, expected %d, is %d", vm.ID(), count, len(attachments))
 	}
 }

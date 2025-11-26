@@ -99,7 +99,7 @@ func getFullTestImage(t *testing.T) (io.ReadSeekCloser, uint64, uint64) {
 		t.Fatalf("cannot read QCOW header from full test image (%v)", err)
 	}
 
-	return &nopReadCloser{bytes.NewReader(fullTestImage)}, uint64(size), header.Size
+	return &nopReadCloser{bytes.NewReader(fullTestImage)}, uint64(size), header.Size //nolint:gosec
 }
 
 func getTestImageFile(t *testing.T) (io.ReadSeekCloser, uint64) {
@@ -133,7 +133,7 @@ func getTestImageData(t *testing.T) ([]byte, uint64) {
 	if err != nil {
 		t.Errorf("testimage/image not found in the test environment. (%v)", err)
 	}
-	return testImage, uint64(size)
+	return testImage, uint64(size) //nolint:gosec
 }
 
 func downloadImage(

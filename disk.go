@@ -717,8 +717,8 @@ func convertSDKDisk(sdkDisk *ovirtsdk4.Disk, client Client) (Disk, error) {
 
 		id:               DiskID(id),
 		alias:            alias,
-		provisionedSize:  uint64(provisionedSize),
-		totalSize:        uint64(totalSize),
+		provisionedSize:  uint64(provisionedSize), //nolint:gosec
+		totalSize:        uint64(totalSize),       //nolint:gosec
 		format:           ImageFormat(format),
 		storageDomainIDs: storageDomainIDs,
 		status:           DiskStatus(status),

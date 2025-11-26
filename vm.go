@@ -472,27 +472,32 @@ func (i *initialization) WithNicConfiguration(nic NicConfiguration) BuildableIni
 	return i
 }
 
-type IpVersion string
+// IPVersion represents the IP protocol version (v4 or v6).
+type IPVersion string
 
 const (
-	IPVERSION_V4 IpVersion = "v4"
-	IPVERSION_V6 IpVersion = "v6"
+	// IPVersionV4 represents IPv4 protocol version.
+	IPVersionV4 IPVersion = "v4"
+	// IPVersionV6 represents IPv6 protocol version.
+	IPVersionV6 IPVersion = "v6"
 )
 
-// Ip Represents the IP configuration of a network interface.
+// IP represents the IP configuration of a network interface.
 type IP struct {
 	Address string
 	Gateway string
 	Netmask string
-	Version IpVersion
+	Version IPVersion
 }
 
+// IsIPv4 returns true if the IP is an IPv4 address.
 func (ip IP) IsIPv4() bool {
-	return ip.Version == IPVERSION_V4
+	return ip.Version == IPVersionV4
 }
 
+// IsIPv6 returns true if the IP is an IPv6 address.
 func (ip IP) IsIPv6() bool {
-	return ip.Version == IPVERSION_V6
+	return ip.Version == IPVersionV6
 }
 
 // NicConfiguration defines a virtual machine’s initialization nic configuration.
@@ -584,7 +589,7 @@ func convertSDKNicConfiguration(sdkObject *ovirtsdk.NicConfiguration) NicConfigu
 			Address: ipv4.MustAddress(),
 			Gateway: ipv4.MustGateway(),
 			Netmask: ipv4.MustNetmask(),
-			Version: IPVERSION_V4,
+			Version: IPVersionV4,
 		},
 	)
 
@@ -600,7 +605,7 @@ func convertSDKNicConfiguration(sdkObject *ovirtsdk.NicConfiguration) NicConfigu
 				Address: address,
 				Gateway: gateway,
 				Netmask: netmask,
-				Version: IPVERSION_V6,
+				Version: IPVersionV6,
 			},
 		)
 	}
@@ -2721,9 +2726,9 @@ func convertSDKVMCPU(sdkObject *ovirtsdk.Vm) (*vmCPU, error) {
 	}
 	cpu := &vmCPU{
 		topo: &vmCPUTopo{
-			uint(cores),
-			uint(threads),
-			uint(sockets),
+			uint(cores),   //nolint:gosec
+			uint(threads), //nolint:gosec
+			uint(sockets), //nolint:gosec
 		},
 		mode: cpuMode,
 	}
@@ -2813,10 +2818,7 @@ type VMStatusList []VMStatus
 // Copy creates a separate copy of the current status list.
 func (l VMStatusList) Copy() VMStatusList {
 	result := make([]VMStatus, len(l))
-	//nolint:gosimple
-	for i, s := range l {
-		result[i] = s
-	}
+	copy(result, l)
 	return result
 }
 

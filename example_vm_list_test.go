@@ -24,4 +24,5 @@ func ExampleVMClient_list() {
 	for _, vm := range vms {
 		fmt.Printf("Found VM %s\n", vm.ID())
 	}
+	// Output:
 }

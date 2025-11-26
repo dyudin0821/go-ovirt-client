@@ -30,9 +30,9 @@ func vmBuilderCPU(params OptionalVMParameters, builder *ovirtsdk.VmBuilder) {
 		if cpuTopo := cpu.Topo(); cpuTopo != nil {
 			cpuBuilder.TopologyBuilder(ovirtsdk.
 				NewCpuTopologyBuilder().
-				Cores(int64(cpu.Topo().Cores())).
-				Threads(int64(cpu.Topo().Threads())).
-				Sockets(int64(cpu.Topo().Sockets())))
+				Cores(int64(cpu.Topo().Cores())).     //nolint:gosec
+				Threads(int64(cpu.Topo().Threads())). //nolint:gosec
+				Sockets(int64(cpu.Topo().Sockets()))) //nolint:gosec
 		}
 		if mode := cpu.Mode(); mode != nil {
 			cpuBuilder.Mode(ovirtsdk.CpuMode(*mode))

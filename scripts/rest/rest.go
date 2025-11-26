@@ -1,3 +1,4 @@
+// Package main provides a code generation tool for REST API bindings.
 package main
 
 import (

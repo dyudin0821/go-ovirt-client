@@ -69,7 +69,7 @@ func (o *oVirtClient) StartCopyTemplateDiskToStorageDomain(
 func (m *mockClient) CopyTemplateDiskToStorageDomain(
 	diskID DiskID,
 	storageDomainID StorageDomainID,
-	retries ...RetryStrategy) (result Disk, err error) {
+	_ ...RetryStrategy) (result Disk, err error) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	disk, ok := m.disks[diskID]

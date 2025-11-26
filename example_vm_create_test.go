@@ -37,4 +37,5 @@ func ExampleVMClient_create() {
 	if err := vm.Remove(); err != nil {
 		panic(fmt.Sprintf("failed to remove VM (%v)", err))
 	}
+	// Output:
 }

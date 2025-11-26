@@ -43,7 +43,7 @@ func ExampleDiskClient_uploadImage() {
 	uploadResult, err := client.UploadToNewDisk(
 		helper.GetStorageDomainID(),
 		ovirtclient.ImageFormatRaw,
-		uint64(stat.Size()),
+		uint64(stat.Size()), //nolint:gosec
 		ovirtclient.CreateDiskParams().MustWithAlias(imageName).MustWithSparse(true),
 		fh,
 	)
@@ -51,6 +51,7 @@ func ExampleDiskClient_uploadImage() {
 		panic(fmt.Errorf("failed to upload image (%w)", err))
 	}
 	fmt.Printf("Uploaded as disk %s\n", uploadResult.Disk().ID())
+	// Output:
 }
 
 // This example demonstrates how to upload a VM image into a disk while being able to cancel the process manually.
@@ -88,7 +89,7 @@ func ExampleDiskClient_uploadImageWithCancel() {
 	uploadResult, err := client.StartUploadToNewDisk(
 		helper.GetStorageDomainID(),
 		ovirtclient.ImageFormatRaw,
-		uint64(stat.Size()),
+		uint64(stat.Size()), //nolint:gosec
 		ovirtclient.CreateDiskParams().MustWithSparse(true).MustWithAlias(imageName),
 		fh,
 		ovirtclient.ContextStrategy(ctx),
@@ -111,4 +112,5 @@ func ExampleDiskClient_uploadImageWithCancel() {
 		panic(fmt.Errorf("failed to upload image (%w)", err))
 	}
 	fmt.Printf("Uploaded as disk %s\n", uploadResult.Disk().ID())
+	// Output:
 }

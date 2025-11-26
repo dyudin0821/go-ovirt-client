@@ -243,7 +243,9 @@ func (i *imageDownload) Read(p []byte) (n int, err error) {
 	n, err = i.reader.Read(p)
 	i.lock.Lock()
 	defer i.lock.Unlock()
-	i.bytesRead += uint64(n)
+	if n > 0 {
+		i.bytesRead += uint64(n)
+	}
 
 	if i.bytesRead == i.size {
 		go func() {
@@ -372,7 +374,9 @@ func (m *mockImageDownload) Read(p []byte) (n int, err error) {
 	if err != nil {
 		m.lastError = err
 	}
-	m.bytesRead += uint64(n)
+	if n > 0 {
+		m.bytesRead += uint64(n)
+	}
 
 	if m.bytesRead == m.size {
 		go func() {

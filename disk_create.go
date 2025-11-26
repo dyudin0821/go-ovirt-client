@@ -116,11 +116,14 @@ func (o *oVirtClient) buildDiskObjectForCreation(
 			storageDomainID,
 		)
 	}
+	if size > 9223372036854775807 { // max int64
+		return nil, newError(EBadArgument, "disk size exceeds maximum allowed value")
+	}
 	diskBuilder := ovirtsdk4.NewDiskBuilder().
 		ProvisionedSize(int64(size)).
 		StorageDomainsOfAny(storageDomain).
 		Format(ovirtsdk4.DiskFormat(format))
-	if params != nil {
+	if params != nil { //nolint:nestif
 		if sparse := params.Sparse(); sparse != nil {
 			diskBuilder.Sparse(*sparse)
 		}
@@ -128,6 +131,9 @@ func (o *oVirtClient) buildDiskObjectForCreation(
 			diskBuilder.Alias(alias)
 		}
 		if initialSize := params.InitialSize(); initialSize != nil {
+			if *initialSize > 9223372036854775807 { // max int64
+				return nil, newError(EBadArgument, "initial size exceeds maximum allowed value")
+			}
 			diskBuilder.InitialSize(int64(*initialSize))
 		}
 	}
