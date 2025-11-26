@@ -61,7 +61,7 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: go-test-${{ hashFiles('**/go.sum') }}
+          key: go-generate-${{ hashFiles('**/go.sum') }}
           restore-keys: go-generate-
       - name: Run go generate
         run: ./.github/scripts/gogenerate.sh
