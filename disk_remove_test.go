@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	ovirtclient "github.com/ovirt/go-ovirt-client/v3"
+	ovirtclient "github.com/dyudin0821/go-ovirt-client/v3"
 )
 
 // TestDiskRemoveFromStoppedVMShouldNotResultInError tests if removing a disk from under a stopped VM does not result

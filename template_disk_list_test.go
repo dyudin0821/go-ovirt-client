@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	ovirtclient "github.com/ovirt/go-ovirt-client/v3"
+	ovirtclient "github.com/dyudin0821/go-ovirt-client/v3"
 )
 
 // TestTemplateDiskListAttachments tests if listing the disk attachments of a template works properly.

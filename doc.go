@@ -110,7 +110,7 @@ You can also create the test helper manually:
         "os"
         "testing"
 
-        ovirtclient "github.com/ovirt/go-ovirt-client/v3"
+        ovirtclient "github.com/dyudin0821/go-ovirt-client/v3"
         ovirtclientlog "github.com/ovirt/go-ovirt-client-log"
     )
 

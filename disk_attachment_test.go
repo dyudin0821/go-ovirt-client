@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	ovirtclient "github.com/ovirt/go-ovirt-client/v3"
+	ovirtclient "github.com/dyudin0821/go-ovirt-client/v3"
 )
 
 func TestDiskAttachmentCreation(t *testing.T) {
