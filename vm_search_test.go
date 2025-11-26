@@ -3,7 +3,7 @@ package ovirtclient_test
 import (
 	"testing"
 
-	ovirtclient "github.com/ovirt/go-ovirt-client/v3"
+	ovirtclient "github.com/dyudin0821/go-ovirt-client/v3"
 )
 
 func TestVMSearch(t *testing.T) {

@@ -44,7 +44,7 @@ linters:
           allow:
             - $gostd
             - github.com/ovirt/go-ovirt
-            - github.com/ovirt/go-ovirt-client/v3
+            - github.com/dyudin0821/go-ovirt-client/v3
             - github.com/ovirt/go-ovirt-client-log/v3
             - github.com/google/uuid
 
