@@ -3,7 +3,7 @@ name: Feature request
 about: Suggest an idea for this project
 title: ''
 labels: feature
-assignees: janosdebugs
+assignees: dyudin0821
 ---
 
 ## Please describe what you would like to see
