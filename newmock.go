@@ -121,6 +121,7 @@ func getClient(
 		vmIPs:                map[VMID]map[string][]net.IP{},
 		instanceTypes:        nil,
 		graphicsConsolesByVM: map[VMID][]*vmGraphicsConsole{},
+		storageDomainFiles:   map[StorageDomainID]map[FileID]*file{},
 	}
 	client.instanceTypes = getInstanceTypes(client)
 	return client

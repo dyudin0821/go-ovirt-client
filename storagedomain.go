@@ -21,6 +21,11 @@ type StorageDomainClient interface {
 	// RemoveDiskFromStorageDomain removes a disk from a specific storage domain, but leaves the disk on other storage
 	// domains if any. If the disk is not present on any more storage domains, the entire disk will be removed.
 	RemoveDiskFromStorageDomain(id StorageDomainID, diskID DiskID, retries ...RetryStrategy) error
+	// ListStorageDomainFiles lists all files (ISO images and VFDs) available in a storage domain.
+	// The refresh parameter forces the server to refresh the list from storage (default: false for better performance).
+	ListStorageDomainFiles(id StorageDomainID, refresh bool, retries ...RetryStrategy) (FileList, error)
+	// GetStorageDomainFile returns a single file from a storage domain by its ID.
+	GetStorageDomainFile(storageDomainID StorageDomainID, fileID FileID, retries ...RetryStrategy) (File, error)
 }
 
 // StorageDomainData is the core of StorageDomain, providing only data access functions.
