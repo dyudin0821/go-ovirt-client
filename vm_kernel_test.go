@@ -8,12 +8,12 @@ import (
 	ovirtclientlog "github.com/ovirt/go-ovirt-client-log/v3"
 )
 
-// TestVMKernelParametersCreate tests creating a VM with kernel parameters
+// TestVMKernelParametersCreate tests creating a VM with kernel parameters.
 func TestVMKernelParametersCreate(t *testing.T) {
 	helper := getHelper(t)
 
 	// Create VM with kernel parameters
-	cmdline := "console=ttyS0"
+	cmdline := testCmdlineSerial
 	customKernelCmdline := "quiet splash"
 	initrd := "/boot/initrd.img"
 	kernel := "/boot/vmlinuz"
@@ -56,7 +56,7 @@ func TestVMKernelParametersCreate(t *testing.T) {
 	}
 }
 
-// TestVMKernelParametersUpdate tests updating kernel parameters on an existing VM
+// TestVMKernelParametersUpdate tests updating kernel parameters on an existing VM.
 func TestVMKernelParametersUpdate(t *testing.T) {
 	helper := getHelper(t)
 	client := helper.GetClient()
@@ -107,12 +107,14 @@ func TestVMKernelParametersUpdate(t *testing.T) {
 	}
 }
 
-// TestVMKernelParametersPartial tests setting only some kernel parameters
+const testCmdlineSerial = "console=ttyS0"
+
+// TestVMKernelParametersPartial tests setting only some kernel parameters.
 func TestVMKernelParametersPartial(t *testing.T) {
 	helper := getHelper(t)
 
 	// Create VM with only cmdline parameter
-	cmdline := "console=ttyS0"
+	cmdline := testCmdlineSerial
 
 	params := ovirtclient.NewCreateVMParams().
 		WithOS(
@@ -157,7 +159,7 @@ func TestVMKernelParametersMock(t *testing.T) {
 	client := helper.GetClient()
 
 	// Create VM with kernel parameters
-	cmdline := "console=ttyS0"
+	cmdline := testCmdlineSerial
 	kernel := "/boot/vmlinuz"
 
 	params := ovirtclient.NewCreateVMParams().
