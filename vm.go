@@ -1610,6 +1610,8 @@ type UpdateVMParameters interface {
 	Comment() *string
 	// Description returns the description for the VM. Return nil if the name should not be changed.
 	Description() *string
+	// BootDevices returns the boot devices for the VM. Return nil if the boot devices should not be changed.
+	BootDevices() []BootDevice
 }
 
 // VMCPUTopo contains the CPU topology information about a VM.
@@ -1699,6 +1701,12 @@ type BuildableUpdateVMParameters interface {
 
 	// MustWithDescription is identical to WithDescription, but panics instead of returning an error.
 	MustWithDescription(comment string) BuildableUpdateVMParameters
+
+	// WithBootDevices sets the boot devices for the VM.
+	WithBootDevices(devices []BootDevice) (BuildableUpdateVMParameters, error)
+
+	// MustWithBootDevices is identical to WithBootDevices, but panics instead of returning an error.
+	MustWithBootDevices(devices []BootDevice) BuildableUpdateVMParameters
 }
 
 // UpdateVMParams returns a buildable set of update parameters.
@@ -1710,6 +1718,7 @@ type updateVMParams struct {
 	name        *string
 	comment     *string
 	description *string
+	bootDevices []BootDevice
 }
 
 func (u *updateVMParams) MustWithName(name string) BuildableUpdateVMParameters {
@@ -1764,6 +1773,28 @@ func (u *updateVMParams) WithComment(comment string) (BuildableUpdateVMParameter
 func (u *updateVMParams) WithDescription(description string) (BuildableUpdateVMParameters, error) {
 	u.description = &description
 	return u, nil
+}
+
+func (u *updateVMParams) BootDevices() []BootDevice {
+	return u.bootDevices
+}
+
+func (u *updateVMParams) WithBootDevices(devices []BootDevice) (BuildableUpdateVMParameters, error) {
+	for _, device := range devices {
+		if err := device.Validate(); err != nil {
+			return nil, err
+		}
+	}
+	u.bootDevices = devices
+	return u, nil
+}
+
+func (u *updateVMParams) MustWithBootDevices(devices []BootDevice) BuildableUpdateVMParameters {
+	builder, err := u.WithBootDevices(devices)
+	if err != nil {
+		panic(err)
+	}
+	return builder
 }
 
 // NewCreateVMParams creates a set of BuildableVMParameters that can be used to construct the optional VM parameters.
