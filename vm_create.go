@@ -250,21 +250,48 @@ func vmSoundcardEnabledCreator(params OptionalVMParameters, builder *ovirtsdk.Vm
 }
 
 func vmOSCreator(params OptionalVMParameters, builder *ovirtsdk.VmBuilder) {
-	if os, ok := params.OS(); ok {
-		osBuilder := ovirtsdk.NewOperatingSystemBuilder()
-		if t := os.Type(); t != nil {
-			osBuilder.Type(*t)
-		}
-		// Add boot devices if specified
-		if bootDevices := os.BootDevices(); len(bootDevices) > 0 {
-			sdkBootDevices := make([]ovirtsdk.BootDevice, len(bootDevices))
-			for i, device := range bootDevices {
-				sdkBootDevices[i] = ovirtsdk.BootDevice(device)
-			}
-			bootBuilder := ovirtsdk.NewBootBuilder().DevicesOfAny(sdkBootDevices...)
-			osBuilder.BootBuilder(bootBuilder)
-		}
-		builder.OsBuilder(osBuilder)
+	os, ok := params.OS()
+	if !ok {
+		return
+	}
+
+	osBuilder := ovirtsdk.NewOperatingSystemBuilder()
+	if t := os.Type(); t != nil {
+		osBuilder.Type(*t)
+	}
+
+	addBootDevicesToOS(os, osBuilder)
+	addKernelParamsToOS(os, osBuilder)
+
+	builder.OsBuilder(osBuilder)
+}
+
+func addBootDevicesToOS(os VMOSParameters, osBuilder *ovirtsdk.OperatingSystemBuilder) {
+	bootDevices := os.BootDevices()
+	if len(bootDevices) == 0 {
+		return
+	}
+
+	sdkBootDevices := make([]ovirtsdk.BootDevice, len(bootDevices))
+	for i, device := range bootDevices {
+		sdkBootDevices[i] = ovirtsdk.BootDevice(device)
+	}
+	bootBuilder := ovirtsdk.NewBootBuilder().DevicesOfAny(sdkBootDevices...)
+	osBuilder.BootBuilder(bootBuilder)
+}
+
+func addKernelParamsToOS(os VMOSParameters, osBuilder *ovirtsdk.OperatingSystemBuilder) {
+	if cmdline := os.Cmdline(); cmdline != nil {
+		osBuilder.Cmdline(*cmdline)
+	}
+	if customKernelCmdline := os.CustomKernelCmdline(); customKernelCmdline != nil {
+		osBuilder.CustomKernelCmdline(*customKernelCmdline)
+	}
+	if initrd := os.Initrd(); initrd != nil {
+		osBuilder.Initrd(*initrd)
+	}
+	if kernel := os.Kernel(); kernel != nil {
+		osBuilder.Kernel(*kernel)
 	}
 }
 
@@ -523,6 +550,11 @@ func (m *mockClient) createVMOS(params OptionalVMParameters) *vmOS {
 		if bootDevices := osParams.BootDevices(); len(bootDevices) > 0 {
 			os.bootDevices = bootDevices
 		}
+		// Set kernel parameters
+		os.cmdline = osParams.Cmdline()
+		os.customKernelCmdline = osParams.CustomKernelCmdline()
+		os.initrd = osParams.Initrd()
+		os.kernel = osParams.Kernel()
 	}
 	return os
 }
