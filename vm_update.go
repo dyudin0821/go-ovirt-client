@@ -27,6 +27,15 @@ func (o *oVirtClient) UpdateVM(
 	if description := params.Description(); description != nil {
 		vm.SetDescription(*description)
 	}
+	if bootDevices := params.BootDevices(); len(bootDevices) > 0 {
+		sdkBootDevices := make([]ovirtsdk.BootDevice, len(bootDevices))
+		for i, device := range bootDevices {
+			sdkBootDevices[i] = ovirtsdk.BootDevice(device)
+		}
+		bootBuilder := ovirtsdk.NewBootBuilder().DevicesOfAny(sdkBootDevices...)
+		osBuilder := ovirtsdk.NewOperatingSystemBuilder().Boot(bootBuilder.MustBuild())
+		vm.SetOs(osBuilder.MustBuild())
+	}
 
 	err = retry(
 		fmt.Sprintf("updating vm %s", id),
@@ -76,6 +85,17 @@ func (m *mockClient) UpdateVM(id VMID, params UpdateVMParameters, _ ...RetryStra
 	}
 	if description := params.Description(); description != nil {
 		vm = vm.withDescription(*description)
+	}
+	if bootDevices := params.BootDevices(); len(bootDevices) > 0 {
+		if vm.os == nil {
+			vm.os = &vmOS{
+				bootDevices: bootDevices,
+			}
+		} else {
+			newOS := *vm.os
+			newOS.bootDevices = bootDevices
+			vm.os = &newOS
+		}
 	}
 	m.vms[id] = vm
 
