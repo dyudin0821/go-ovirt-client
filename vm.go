@@ -245,11 +245,34 @@ type VMOS interface {
 	Type() string
 	// BootDevices returns the boot sequence for the VM.
 	BootDevices() []BootDevice
+	// Cmdline returns custom kernel parameters for starting the virtual machine if Linux operating system is used.
+	// Not used for hosts.
+	Cmdline() *string
+	// CustomKernelCmdline returns a custom part of the host kernel command line.
+	// This is currently only used for hosts, not for VMs.
+	CustomKernelCmdline() *string
+	// Initrd returns path to custom initial ramdisk on ISO storage domain if Linux operating system is used.
+	// For example: iso://initramfs-3.10.0-514.6.1.el7.x86_64.img
+	// Not used for hosts.
+	Initrd() *string
+	// Kernel returns path to custom kernel on ISO storage domain if Linux operating system is used.
+	// For example: iso://vmlinuz-3.10.0-514.6.1.el7.x86_64
+	// Not used for hosts.
+	Kernel() *string
+	// ReportedKernelCmdline returns the host kernel command line as reported by a running host.
+	// This is a read-only attribute. Attempts to change this attribute are silently ignored.
+	// This is currently only used for hosts, not for VMs.
+	ReportedKernelCmdline() *string
 }
 
 type vmOS struct {
-	t           string
-	bootDevices []BootDevice
+	t                     string
+	bootDevices           []BootDevice
+	cmdline               *string
+	customKernelCmdline   *string
+	initrd                *string
+	kernel                *string
+	reportedKernelCmdline *string
 }
 
 func (v vmOS) Type() string {
@@ -258,6 +281,26 @@ func (v vmOS) Type() string {
 
 func (v vmOS) BootDevices() []BootDevice {
 	return v.bootDevices
+}
+
+func (v vmOS) Cmdline() *string {
+	return v.cmdline
+}
+
+func (v vmOS) CustomKernelCmdline() *string {
+	return v.customKernelCmdline
+}
+
+func (v vmOS) Initrd() *string {
+	return v.initrd
+}
+
+func (v vmOS) Kernel() *string {
+	return v.kernel
+}
+
+func (v vmOS) ReportedKernelCmdline() *string {
+	return v.reportedKernelCmdline
 }
 
 // VMPlacementPolicy is the structure that holds the rules for VM migration to other hosts.
@@ -1143,6 +1186,20 @@ type VMOSParameters interface {
 	Type() *string
 	// BootDevices returns the boot sequence for the VM.
 	BootDevices() []BootDevice
+	// Cmdline returns custom kernel parameters for starting the virtual machine if Linux operating system is used.
+	// Not used for hosts.
+	Cmdline() *string
+	// CustomKernelCmdline returns a custom part of the host kernel command line.
+	// This is currently only used for hosts, not for VMs.
+	CustomKernelCmdline() *string
+	// Initrd returns path to custom initial ramdisk on ISO storage domain if Linux operating system is used.
+	// For example: iso://initramfs-3.10.0-514.6.1.el7.x86_64.img
+	// Not used for hosts.
+	Initrd() *string
+	// Kernel returns path to custom kernel on ISO storage domain if Linux operating system is used.
+	// For example: iso://vmlinuz-3.10.0-514.6.1.el7.x86_64
+	// Not used for hosts.
+	Kernel() *string
 }
 
 // BuildableVMOSParameters is a buildable version of VMOSParameters.
@@ -1157,6 +1214,24 @@ type BuildableVMOSParameters interface {
 	// WithBootDevice adds a single boot device to the boot sequence.
 	WithBootDevice(device BootDevice) (BuildableVMOSParameters, error)
 	MustWithBootDevice(device BootDevice) BuildableVMOSParameters
+	// WithCmdline sets custom kernel parameters for starting the virtual machine if Linux operating system is used.
+	// Not used for hosts.
+	WithCmdline(cmdline string) (BuildableVMOSParameters, error)
+	MustWithCmdline(cmdline string) BuildableVMOSParameters
+	// WithCustomKernelCmdline sets a custom part of the host kernel command line.
+	// This is currently only used for hosts, not for VMs.
+	WithCustomKernelCmdline(customKernelCmdline string) (BuildableVMOSParameters, error)
+	MustWithCustomKernelCmdline(customKernelCmdline string) BuildableVMOSParameters
+	// WithInitrd sets path to custom initial ramdisk on ISO storage domain if Linux operating system is used.
+	// For example: iso://initramfs-3.10.0-514.6.1.el7.x86_64.img
+	// Not used for hosts.
+	WithInitrd(initrd string) (BuildableVMOSParameters, error)
+	MustWithInitrd(initrd string) BuildableVMOSParameters
+	// WithKernel sets path to custom kernel on ISO storage domain if Linux operating system is used.
+	// For example: iso://vmlinuz-3.10.0-514.6.1.el7.x86_64
+	// Not used for hosts.
+	WithKernel(kernel string) (BuildableVMOSParameters, error)
+	MustWithKernel(kernel string) BuildableVMOSParameters
 }
 
 // NewVMOSParameters creates a new VMOSParameters structure.
@@ -1165,8 +1240,12 @@ func NewVMOSParameters() BuildableVMOSParameters {
 }
 
 type vmOSParameters struct {
-	t           *string
-	bootDevices []BootDevice
+	t                   *string
+	bootDevices         []BootDevice
+	cmdline             *string
+	customKernelCmdline *string
+	initrd              *string
+	kernel              *string
 }
 
 func (v *vmOSParameters) Type() *string {
@@ -1175,6 +1254,22 @@ func (v *vmOSParameters) Type() *string {
 
 func (v *vmOSParameters) BootDevices() []BootDevice {
 	return v.bootDevices
+}
+
+func (v *vmOSParameters) Cmdline() *string {
+	return v.cmdline
+}
+
+func (v *vmOSParameters) CustomKernelCmdline() *string {
+	return v.customKernelCmdline
+}
+
+func (v *vmOSParameters) Initrd() *string {
+	return v.initrd
+}
+
+func (v *vmOSParameters) Kernel() *string {
+	return v.kernel
 }
 
 func (v *vmOSParameters) WithType(t string) (BuildableVMOSParameters, error) {
@@ -1218,6 +1313,58 @@ func (v *vmOSParameters) WithBootDevice(device BootDevice) (BuildableVMOSParamet
 
 func (v *vmOSParameters) MustWithBootDevice(device BootDevice) BuildableVMOSParameters {
 	builder, err := v.WithBootDevice(device)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (v *vmOSParameters) WithCmdline(cmdline string) (BuildableVMOSParameters, error) {
+	v.cmdline = &cmdline
+	return v, nil
+}
+
+func (v *vmOSParameters) MustWithCmdline(cmdline string) BuildableVMOSParameters {
+	builder, err := v.WithCmdline(cmdline)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (v *vmOSParameters) WithCustomKernelCmdline(customKernelCmdline string) (BuildableVMOSParameters, error) {
+	v.customKernelCmdline = &customKernelCmdline
+	return v, nil
+}
+
+func (v *vmOSParameters) MustWithCustomKernelCmdline(customKernelCmdline string) BuildableVMOSParameters {
+	builder, err := v.WithCustomKernelCmdline(customKernelCmdline)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (v *vmOSParameters) WithInitrd(initrd string) (BuildableVMOSParameters, error) {
+	v.initrd = &initrd
+	return v, nil
+}
+
+func (v *vmOSParameters) MustWithInitrd(initrd string) BuildableVMOSParameters {
+	builder, err := v.WithInitrd(initrd)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (v *vmOSParameters) WithKernel(kernel string) (BuildableVMOSParameters, error) {
+	v.kernel = &kernel
+	return v, nil
+}
+
+func (v *vmOSParameters) MustWithKernel(kernel string) BuildableVMOSParameters {
+	builder, err := v.WithKernel(kernel)
 	if err != nil {
 		panic(err)
 	}
@@ -1624,6 +1771,18 @@ type UpdateVMParameters interface {
 	Description() *string
 	// BootDevices returns the boot devices for the VM. Return nil if the boot devices should not be changed.
 	BootDevices() []BootDevice
+	// Cmdline returns custom kernel parameters for starting the virtual machine if Linux operating system is used.
+	// Not used for hosts.
+	Cmdline() *string
+	// CustomKernelCmdline returns a custom part of the host kernel command line.
+	// This is currently only used for hosts, not for VMs.
+	CustomKernelCmdline() *string
+	// Initrd returns path to custom initial ramdisk on ISO storage domain if Linux operating system is used.
+	// Not used for hosts.
+	Initrd() *string
+	// Kernel returns path to custom kernel on ISO storage domain if Linux operating system is used.
+	// Not used for hosts.
+	Kernel() *string
 }
 
 // VMCPUTopo contains the CPU topology information about a VM.
@@ -1719,6 +1878,34 @@ type BuildableUpdateVMParameters interface {
 
 	// MustWithBootDevices is identical to WithBootDevices, but panics instead of returning an error.
 	MustWithBootDevices(devices []BootDevice) BuildableUpdateVMParameters
+
+	// WithCmdline sets custom kernel parameters for starting the virtual machine if Linux operating system is used.
+	// Not used for hosts.
+	WithCmdline(cmdline string) (BuildableUpdateVMParameters, error)
+
+	// MustWithCmdline is identical to WithCmdline, but panics instead of returning an error.
+	MustWithCmdline(cmdline string) BuildableUpdateVMParameters
+
+	// WithCustomKernelCmdline sets a custom part of the host kernel command line.
+	// This is currently only used for hosts, not for VMs.
+	WithCustomKernelCmdline(customKernelCmdline string) (BuildableUpdateVMParameters, error)
+
+	// MustWithCustomKernelCmdline is identical to WithCustomKernelCmdline, but panics instead of returning an error.
+	MustWithCustomKernelCmdline(customKernelCmdline string) BuildableUpdateVMParameters
+
+	// WithInitrd sets path to custom initial ramdisk on ISO storage domain if Linux operating system is used.
+	// Not used for hosts.
+	WithInitrd(initrd string) (BuildableUpdateVMParameters, error)
+
+	// MustWithInitrd is identical to WithInitrd, but panics instead of returning an error.
+	MustWithInitrd(initrd string) BuildableUpdateVMParameters
+
+	// WithKernel sets path to custom kernel on ISO storage domain if Linux operating system is used.
+	// Not used for hosts.
+	WithKernel(kernel string) (BuildableUpdateVMParameters, error)
+
+	// MustWithKernel is identical to WithKernel, but panics instead of returning an error.
+	MustWithKernel(kernel string) BuildableUpdateVMParameters
 }
 
 // UpdateVMParams returns a buildable set of update parameters.
@@ -1727,10 +1914,14 @@ func UpdateVMParams() BuildableUpdateVMParameters {
 }
 
 type updateVMParams struct {
-	name        *string
-	comment     *string
-	description *string
-	bootDevices []BootDevice
+	name                *string
+	comment             *string
+	description         *string
+	bootDevices         []BootDevice
+	cmdline             *string
+	customKernelCmdline *string
+	initrd              *string
+	kernel              *string
 }
 
 func (u *updateVMParams) MustWithName(name string) BuildableUpdateVMParameters {
@@ -1791,6 +1982,22 @@ func (u *updateVMParams) BootDevices() []BootDevice {
 	return u.bootDevices
 }
 
+func (u *updateVMParams) Cmdline() *string {
+	return u.cmdline
+}
+
+func (u *updateVMParams) CustomKernelCmdline() *string {
+	return u.customKernelCmdline
+}
+
+func (u *updateVMParams) Initrd() *string {
+	return u.initrd
+}
+
+func (u *updateVMParams) Kernel() *string {
+	return u.kernel
+}
+
 func (u *updateVMParams) WithBootDevices(devices []BootDevice) (BuildableUpdateVMParameters, error) {
 	for _, device := range devices {
 		if err := device.Validate(); err != nil {
@@ -1803,6 +2010,58 @@ func (u *updateVMParams) WithBootDevices(devices []BootDevice) (BuildableUpdateV
 
 func (u *updateVMParams) MustWithBootDevices(devices []BootDevice) BuildableUpdateVMParameters {
 	builder, err := u.WithBootDevices(devices)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (u *updateVMParams) WithCmdline(cmdline string) (BuildableUpdateVMParameters, error) {
+	u.cmdline = &cmdline
+	return u, nil
+}
+
+func (u *updateVMParams) MustWithCmdline(cmdline string) BuildableUpdateVMParameters {
+	builder, err := u.WithCmdline(cmdline)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (u *updateVMParams) WithCustomKernelCmdline(customKernelCmdline string) (BuildableUpdateVMParameters, error) {
+	u.customKernelCmdline = &customKernelCmdline
+	return u, nil
+}
+
+func (u *updateVMParams) MustWithCustomKernelCmdline(customKernelCmdline string) BuildableUpdateVMParameters {
+	builder, err := u.WithCustomKernelCmdline(customKernelCmdline)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (u *updateVMParams) WithInitrd(initrd string) (BuildableUpdateVMParameters, error) {
+	u.initrd = &initrd
+	return u, nil
+}
+
+func (u *updateVMParams) MustWithInitrd(initrd string) BuildableUpdateVMParameters {
+	builder, err := u.WithInitrd(initrd)
+	if err != nil {
+		panic(err)
+	}
+	return builder
+}
+
+func (u *updateVMParams) WithKernel(kernel string) (BuildableUpdateVMParameters, error) {
+	u.kernel = &kernel
+	return u, nil
+}
+
+func (u *updateVMParams) MustWithKernel(kernel string) BuildableUpdateVMParameters {
+	builder, err := u.WithKernel(kernel)
 	if err != nil {
 		panic(err)
 	}
@@ -2562,6 +2821,23 @@ func vmOSConverter(object *ovirtsdk.Vm, v *vm) error {
 			}
 			v.os.bootDevices = bootDevices
 		}
+	}
+
+	// Read kernel parameters if present
+	if cmdline, ok := sdkOS.Cmdline(); ok {
+		v.os.cmdline = &cmdline
+	}
+	if customKernelCmdline, ok := sdkOS.CustomKernelCmdline(); ok {
+		v.os.customKernelCmdline = &customKernelCmdline
+	}
+	if initrd, ok := sdkOS.Initrd(); ok {
+		v.os.initrd = &initrd
+	}
+	if kernel, ok := sdkOS.Kernel(); ok {
+		v.os.kernel = &kernel
+	}
+	if reportedKernelCmdline, ok := sdkOS.ReportedKernelCmdline(); ok {
+		v.os.reportedKernelCmdline = &reportedKernelCmdline
 	}
 
 	return nil

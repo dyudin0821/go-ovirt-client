@@ -264,6 +264,19 @@ func vmOSCreator(params OptionalVMParameters, builder *ovirtsdk.VmBuilder) {
 			bootBuilder := ovirtsdk.NewBootBuilder().DevicesOfAny(sdkBootDevices...)
 			osBuilder.BootBuilder(bootBuilder)
 		}
+		// Add kernel parameters if specified
+		if cmdline := os.Cmdline(); cmdline != nil {
+			osBuilder.Cmdline(*cmdline)
+		}
+		if customKernelCmdline := os.CustomKernelCmdline(); customKernelCmdline != nil {
+			osBuilder.CustomKernelCmdline(*customKernelCmdline)
+		}
+		if initrd := os.Initrd(); initrd != nil {
+			osBuilder.Initrd(*initrd)
+		}
+		if kernel := os.Kernel(); kernel != nil {
+			osBuilder.Kernel(*kernel)
+		}
 		builder.OsBuilder(osBuilder)
 	}
 }
@@ -523,6 +536,11 @@ func (m *mockClient) createVMOS(params OptionalVMParameters) *vmOS {
 		if bootDevices := osParams.BootDevices(); len(bootDevices) > 0 {
 			os.bootDevices = bootDevices
 		}
+		// Set kernel parameters
+		os.cmdline = osParams.Cmdline()
+		os.customKernelCmdline = osParams.CustomKernelCmdline()
+		os.initrd = osParams.Initrd()
+		os.kernel = osParams.Kernel()
 	}
 	return os
 }

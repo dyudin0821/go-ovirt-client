@@ -27,13 +27,35 @@ func (o *oVirtClient) UpdateVM(
 	if description := params.Description(); description != nil {
 		vm.SetDescription(*description)
 	}
-	if bootDevices := params.BootDevices(); len(bootDevices) > 0 {
-		sdkBootDevices := make([]ovirtsdk.BootDevice, len(bootDevices))
-		for i, device := range bootDevices {
-			sdkBootDevices[i] = ovirtsdk.BootDevice(device)
+
+	// Handle OS parameters including boot devices and kernel parameters
+	if bootDevices := params.BootDevices(); len(bootDevices) > 0 || params.Cmdline() != nil ||
+		params.CustomKernelCmdline() != nil || params.Initrd() != nil || params.Kernel() != nil {
+		osBuilder := ovirtsdk.NewOperatingSystemBuilder()
+
+		if len(bootDevices) > 0 {
+			sdkBootDevices := make([]ovirtsdk.BootDevice, len(bootDevices))
+			for i, device := range bootDevices {
+				sdkBootDevices[i] = ovirtsdk.BootDevice(device)
+			}
+			bootBuilder := ovirtsdk.NewBootBuilder().DevicesOfAny(sdkBootDevices...)
+			osBuilder.BootBuilder(bootBuilder)
 		}
-		bootBuilder := ovirtsdk.NewBootBuilder().DevicesOfAny(sdkBootDevices...)
-		osBuilder := ovirtsdk.NewOperatingSystemBuilder().Boot(bootBuilder.MustBuild())
+
+		// Set kernel parameters
+		if cmdline := params.Cmdline(); cmdline != nil {
+			osBuilder.Cmdline(*cmdline)
+		}
+		if customKernelCmdline := params.CustomKernelCmdline(); customKernelCmdline != nil {
+			osBuilder.CustomKernelCmdline(*customKernelCmdline)
+		}
+		if initrd := params.Initrd(); initrd != nil {
+			osBuilder.Initrd(*initrd)
+		}
+		if kernel := params.Kernel(); kernel != nil {
+			osBuilder.Kernel(*kernel)
+		}
+
 		vm.SetOs(osBuilder.MustBuild())
 	}
 
@@ -86,6 +108,8 @@ func (m *mockClient) UpdateVM(id VMID, params UpdateVMParameters, _ ...RetryStra
 	if description := params.Description(); description != nil {
 		vm = vm.withDescription(*description)
 	}
+
+	// Update OS parameters including boot devices and kernel parameters
 	if bootDevices := params.BootDevices(); len(bootDevices) > 0 {
 		if vm.os == nil {
 			vm.os = &vmOS{
@@ -97,6 +121,41 @@ func (m *mockClient) UpdateVM(id VMID, params UpdateVMParameters, _ ...RetryStra
 			vm.os = &newOS
 		}
 	}
+
+	// Update kernel parameters
+	if cmdline := params.Cmdline(); cmdline != nil {
+		if vm.os == nil {
+			vm.os = &vmOS{}
+		}
+		newOS := *vm.os
+		newOS.cmdline = cmdline
+		vm.os = &newOS
+	}
+	if customKernelCmdline := params.CustomKernelCmdline(); customKernelCmdline != nil {
+		if vm.os == nil {
+			vm.os = &vmOS{}
+		}
+		newOS := *vm.os
+		newOS.customKernelCmdline = customKernelCmdline
+		vm.os = &newOS
+	}
+	if initrd := params.Initrd(); initrd != nil {
+		if vm.os == nil {
+			vm.os = &vmOS{}
+		}
+		newOS := *vm.os
+		newOS.initrd = initrd
+		vm.os = &newOS
+	}
+	if kernel := params.Kernel(); kernel != nil {
+		if vm.os == nil {
+			vm.os = &vmOS{}
+		}
+		newOS := *vm.os
+		newOS.kernel = kernel
+		vm.os = &newOS
+	}
+
 	m.vms[id] = vm
 
 	return vm, nil
