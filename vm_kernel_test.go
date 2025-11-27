@@ -150,7 +150,7 @@ func TestVMKernelParametersPartial(t *testing.T) {
 	}
 }
 
-// TestVMKernelParametersMock tests kernel parameters with mock client
+// TestVMKernelParametersMock tests kernel parameters with mock client.
 func TestVMKernelParametersMock(t *testing.T) {
 	helper, err := ovirtclient.NewMockTestHelper(ovirtclientlog.NewTestLogger(t))
 	if err != nil {
