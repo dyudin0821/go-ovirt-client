@@ -24,6 +24,7 @@ func ExampleClient_AttachCDROM() {
 	}
 
 	fmt.Printf("Attached ISO %s to CDROM %s on VM %s\n", cdrom.FileID(), cdrom.ID(), cdrom.VMID())
+	// Output:
 }
 
 // This example demonstrates how to list all CDROM attachments on a VM.
@@ -45,6 +46,7 @@ func ExampleClient_ListCDROMs() {
 			fmt.Printf("CDROM %s is empty\n", cdrom.ID())
 		}
 	}
+	// Output:
 }
 
 // This example demonstrates how to change the ISO in a CDROM.
@@ -63,6 +65,7 @@ func ExampleClient_ChangeCDROM() {
 	}
 
 	fmt.Printf("Changed CDROM %s to ISO %s\n", updatedCDROM.ID(), updatedCDROM.FileID())
+	// Output:
 }
 
 // This example demonstrates how to eject an ISO from a CDROM.
@@ -82,4 +85,5 @@ func ExampleClient_EjectCDROM() {
 	if ejectedCDROM.FileID() == "" {
 		fmt.Printf("Successfully ejected ISO from CDROM %s\n", ejectedCDROM.ID())
 	}
+	// Output:
 }
