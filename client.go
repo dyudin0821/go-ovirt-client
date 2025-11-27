@@ -26,6 +26,7 @@ type Client interface {
 	AffinityGroupClient
 	DiskClient
 	DiskAttachmentClient
+	CDROMClient
 	VMClient
 	NICClient
 	VNICProfileClient

@@ -658,6 +658,18 @@ type VM interface {
 		diskAttachmentID DiskAttachmentID,
 		retries ...RetryStrategy,
 	) error
+
+	// AttachISO attaches an ISO image to this VM's CDROM.
+	AttachISO(isoImageID string, retries ...RetryStrategy) (CDROM, error)
+	// GetCDROM returns a specific CDROM attachment for the current VM by ID.
+	GetCDROM(cdromID CDROMID, retries ...RetryStrategy) (CDROM, error)
+	// ListCDROMs lists all CDROM attachments for the current VM.
+	ListCDROMs(retries ...RetryStrategy) ([]CDROM, error)
+	// ChangeISO changes the ISO image in a CDROM attachment.
+	ChangeISO(cdromID CDROMID, isoImageID string, retries ...RetryStrategy) (CDROM, error)
+	// EjectISO ejects the ISO from a CDROM attachment.
+	EjectISO(cdromID CDROMID, retries ...RetryStrategy) (CDROM, error)
+
 	// Tags list all tags for the current VM
 	Tags(retries ...RetryStrategy) ([]Tag, error)
 
@@ -2370,6 +2382,26 @@ func (v *vm) ListDiskAttachments(retries ...RetryStrategy) ([]DiskAttachment, er
 
 func (v *vm) DetachDisk(diskAttachmentID DiskAttachmentID, retries ...RetryStrategy) error {
 	return v.client.RemoveDiskAttachment(v.id, diskAttachmentID, retries...)
+}
+
+func (v *vm) AttachISO(isoImageID string, retries ...RetryStrategy) (CDROM, error) {
+	return v.client.AttachCDROM(v.id, isoImageID, retries...)
+}
+
+func (v *vm) GetCDROM(cdromID CDROMID, retries ...RetryStrategy) (CDROM, error) {
+	return v.client.GetCDROM(v.id, cdromID, retries...)
+}
+
+func (v *vm) ListCDROMs(retries ...RetryStrategy) ([]CDROM, error) {
+	return v.client.ListCDROMs(v.id, retries...)
+}
+
+func (v *vm) ChangeISO(cdromID CDROMID, isoImageID string, retries ...RetryStrategy) (CDROM, error) {
+	return v.client.ChangeCDROM(v.id, cdromID, isoImageID, retries...)
+}
+
+func (v *vm) EjectISO(cdromID CDROMID, retries ...RetryStrategy) (CDROM, error) {
+	return v.client.EjectCDROM(v.id, cdromID, retries...)
 }
 
 func (v *vm) Remove(retries ...RetryStrategy) error {

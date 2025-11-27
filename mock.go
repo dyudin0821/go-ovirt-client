@@ -36,6 +36,7 @@ type mockClient struct {
 	dataCenters                       map[DatacenterID]*datacenterWithClusters
 	vmDiskAttachmentsByVM             map[VMID]map[DiskAttachmentID]*diskAttachment
 	vmDiskAttachmentsByDisk           map[DiskID]*diskAttachment
+	vmCDROMsByVM                      map[VMID]map[CDROMID]*cdrom
 	templateDiskAttachmentsByTemplate map[TemplateID][]*templateDiskAttachment
 	templateDiskAttachmentsByDisk     map[DiskID]*templateDiskAttachment
 	tags                              map[TagID]*tag
@@ -64,6 +65,7 @@ func (m *mockClient) WithContext(ctx context.Context) Client {
 		m.dataCenters,
 		m.vmDiskAttachmentsByVM,
 		m.vmDiskAttachmentsByDisk,
+		m.vmCDROMsByVM,
 		m.templateDiskAttachmentsByTemplate,
 		m.templateDiskAttachmentsByDisk,
 		m.tags,
